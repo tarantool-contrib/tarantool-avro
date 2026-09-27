@@ -1,0 +1,74 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  luacheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: tarantool/setup-tarantool@v4
+        with:
+          tarantool-version: '3.9'
+
+      - name: Setup tt
+        run: |
+          curl -L https://tarantool.io/release/2/installer.sh | sudo bash
+          sudo apt-get install -y tt
+
+      - name: Install luacheck
+        run: tt rocks install luacheck 0.26.1
+
+      - name: Run luacheck
+        run: .rocks/bin/luacheck .
+
+  luatest:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Only 3.9 is supported for now; the oldest and the newest supported
+        # series belong here once there is more than one.
+        tarantool: [ '3.9' ]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: tarantool/setup-tarantool@v4
+        with:
+          tarantool-version: ${{ matrix.tarantool }}
+
+      - name: Setup tt
+        run: |
+          curl -L https://tarantool.io/release/2/installer.sh | sudo bash
+          sudo apt-get install -y tt
+
+      # zlib and zstd come from the tarantool binary itself; liblz4 is the one
+      # the compress tests need from the system.
+      - name: Install liblz4
+        run: sudo apt-get install -y liblz4-1
+
+      - name: Install the module
+        run: tt rocks make
+
+      - name: Install luatest
+        run: tt rocks install luatest
+
+      - name: Run tests
+        run: .rocks/bin/luatest -v test/
+
+      - name: Run tests with the pure-Lua inflater
+        run: .rocks/bin/luatest -v test/
+        env:
+          AVRO_PURE_LUA: '1'
