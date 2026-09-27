@@ -14,10 +14,10 @@ local t    = require('luatest')
 local fio  = require('fio')
 local json = require('json')
 
-local schema  = require('pregel.avro.schema')
-local codec   = require('pregel.avro.codec')
-local ocf     = require('pregel.avro.ocf')
-local deflate = require('pregel.avro.deflate')
+local schema  = require('avro.schema')
+local codec   = require('avro.codec')
+local ocf     = require('avro.ocf')
+local deflate = require('avro.deflate')
 
 local g = t.group('avro_interop')
 
@@ -288,7 +288,7 @@ local function counting_inflate(body)
 end
 
 g.test_fastavro_deflate_files_read_the_same_through_both_paths = function()
-    -- The deflate codec has two readers: zlib through pregel.compress, and the
+    -- The deflate codec has two readers: zlib through avro.compress, and the
     -- pure-Lua inflater that is the guarantee on a host with no library. Both
     -- have to produce the same records from bytes fastavro wrote, and on this
     -- machine only the first would ever run -- so the second is forced here

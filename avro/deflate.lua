@@ -1,7 +1,7 @@
 --- Raw DEFLATE (RFC 1951) for the Avro "deflate" OCF codec.
 --
 -- Avro stores deflate blocks without the zlib wrapper, so both directions want
--- `window_bits = -15`. `pregel.compress` provides it:
+-- `window_bits = -15`. `avro.compress` provides it:
 --
 --   * `compress.zlib` -- Enterprise's module where there is one -- compresses
 --     raw, and that is what `deflate()` uses. The output is the framed stream
@@ -15,19 +15,19 @@
 --
 -- The pure-Lua inflater below stays, and stays the fallback: it is what makes
 -- a deflate container file readable on a host with no loadable libz at all.
--- `PREGEL_AVRO_PURE_LUA=1` in the environment, or `M.force_pure = true`,
+-- `AVRO_PURE_LUA=1` in the environment, or `M.force_pure = true`,
 -- selects it unconditionally, so the slow path keeps being exercised rather
 -- than rotting behind a machine that always has zlib.
 --
 -- Compression falls back to RFC 1951 stored blocks when no zlib can be loaded:
 -- valid, uncompressed deflate that any Avro implementation reads back.
 --
--- @module pregel.avro.deflate
+-- @module avro.deflate
 
 local bit = require('bit')
 local ffi = require('ffi')
 
-local compress = require('pregel.compress')
+local compress = require('avro.compress')
 
 local M = {}
 
@@ -51,11 +51,11 @@ M.has_raw_inflate = ok_raw
 
 --- Force the pure-Lua inflater even where zlib is available.
 --
--- Set from `PREGEL_AVRO_PURE_LUA` at load, and writable afterwards so a test
+-- Set from `AVRO_PURE_LUA` at load, and writable afterwards so a test
 -- can drive both paths over the same fixture in one process. It only affects
 -- `decompress`; `inflate` is the pure path by definition and `deflate` has no
 -- pure alternative worth choosing.
-M.force_pure = (os.getenv('PREGEL_AVRO_PURE_LUA') or '') ~= ''
+M.force_pure = (os.getenv('AVRO_PURE_LUA') or '') ~= ''
 
 local function fail(fmt, ...)
     error('avro.deflate: ' .. string.format(fmt, ...), 0)

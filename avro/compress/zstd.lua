@@ -1,7 +1,7 @@
 --- Zstandard over the FFI, with the same surface as Enterprise's
 --  `compress.zstd`.
 --
---     local zstd = require('pregel.compress.zstd')
+--     local zstd = require('avro.compress.zstd')
 --     local z = zstd.new({level = 3})
 --     z:decompress(z:compress(s)) == s
 --
@@ -23,11 +23,11 @@
 -- what it claims. A frame declaring 2^60 bytes costs a rejected call, not the
 -- process.
 --
--- @module pregel.compress.zstd
+-- @module avro.compress.zstd
 
 local ffi = require('ffi')
 
-local lib = require('pregel.compress.lib')
+local lib = require('avro.compress.lib')
 
 local M = {}
 
@@ -43,16 +43,16 @@ ffi.cdef[[
     int ZSTD_minCLevel(void);
     int ZSTD_maxCLevel(void);
 
-    typedef struct pregel_ZSTD_DStream_s pregel_ZSTD_DStream;
-    typedef struct { const void *src; size_t size; size_t pos; } pregel_ZSTD_inBuffer;
-    typedef struct { void *dst; size_t size; size_t pos; } pregel_ZSTD_outBuffer;
+    typedef struct tarantool_avro_ZSTD_DStream_s tarantool_avro_ZSTD_DStream;
+    typedef struct { const void *src; size_t size; size_t pos; } tarantool_avro_ZSTD_inBuffer;
+    typedef struct { void *dst; size_t size; size_t pos; } tarantool_avro_ZSTD_outBuffer;
 
-    pregel_ZSTD_DStream *ZSTD_createDStream(void);
-    size_t ZSTD_initDStream(pregel_ZSTD_DStream *zds);
-    size_t ZSTD_decompressStream(pregel_ZSTD_DStream *zds,
-                                 pregel_ZSTD_outBuffer *output,
-                                 pregel_ZSTD_inBuffer *input);
-    size_t ZSTD_freeDStream(pregel_ZSTD_DStream *zds);
+    tarantool_avro_ZSTD_DStream *ZSTD_createDStream(void);
+    size_t ZSTD_initDStream(tarantool_avro_ZSTD_DStream *zds);
+    size_t ZSTD_decompressStream(tarantool_avro_ZSTD_DStream *zds,
+                                 tarantool_avro_ZSTD_outBuffer *output,
+                                 tarantool_avro_ZSTD_inBuffer *input);
+    size_t ZSTD_freeDStream(tarantool_avro_ZSTD_DStream *zds);
     size_t ZSTD_DStreamOutSize(void);
 ]]
 
@@ -74,7 +74,7 @@ local FALLBACK_MIN_LEVEL = -131072
 local FALLBACK_MAX_LEVEL = 22
 
 local function fail(fmt, ...)
-    error('pregel.compress: ' .. string.format(fmt, ...), 0)
+    error('avro.compress: ' .. string.format(fmt, ...), 0)
 end
 
 local function check(C, rc, what)
@@ -134,10 +134,10 @@ local function stream_decompress(C, data)
         chunk = 128 * 1024
     end
     local buf = ffi.new('uint8_t[?]', chunk)
-    local input = ffi.new('pregel_ZSTD_inBuffer',
+    local input = ffi.new('tarantool_avro_ZSTD_inBuffer',
                           {src = ffi.cast('const void *', data), size = #data, pos = 0})
     local out, n = {}, 0
-    local output = ffi.new('pregel_ZSTD_outBuffer')
+    local output = ffi.new('tarantool_avro_ZSTD_outBuffer')
     while true do
         output.dst  = buf
         output.size = chunk
@@ -210,7 +210,7 @@ end
 --        reports (-131072..22 on a current one), as Enterprise documents
 -- @return an object with `compress` and `decompress`
 -- @raise when `level` is out of range or of the wrong type, and when no
---        libzstd can be loaded -- see pregel.compress.lib for where it looks
+--        libzstd can be loaded -- see avro.compress.lib for where it looks
 -- @function new
 function M.new(opts)
     opts = opts or {}

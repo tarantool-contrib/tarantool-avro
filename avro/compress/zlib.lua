@@ -1,6 +1,6 @@
 --- zlib over the FFI, with the same surface as Enterprise's `compress.zlib`.
 --
---     local zlib = require('pregel.compress.zlib')
+--     local zlib = require('avro.compress.zlib')
 --     local z = zlib.new({level = 6})
 --     z:decompress(z:compress(s)) == s
 --
@@ -23,11 +23,11 @@
 -- Every call builds its own `z_stream`, so an object is safe to share between
 -- fibers: nothing is carried from one call to the next.
 --
--- @module pregel.compress.zlib
+-- @module avro.compress.zlib
 
 local ffi = require('ffi')
 
-local lib = require('pregel.compress.lib')
+local lib = require('avro.compress.lib')
 
 local M = {}
 
@@ -50,22 +50,22 @@ ffi.cdef[[
         int             data_type;
         unsigned long   adler;
         unsigned long   reserved;
-    } pregel_z_stream;
+    } tarantool_avro_z_stream;
 
-    int deflateInit2_(pregel_z_stream *strm, int level, int method,
+    int deflateInit2_(tarantool_avro_z_stream *strm, int level, int method,
                       int windowBits, int memLevel, int strategy,
                       const char *version, int stream_size);
-    int deflate(pregel_z_stream *strm, int flush);
-    int deflateEnd(pregel_z_stream *strm);
-    unsigned long deflateBound(pregel_z_stream *strm, unsigned long sourceLen);
+    int deflate(tarantool_avro_z_stream *strm, int flush);
+    int deflateEnd(tarantool_avro_z_stream *strm);
+    unsigned long deflateBound(tarantool_avro_z_stream *strm, unsigned long sourceLen);
 
-    int inflateInit2_(pregel_z_stream *strm, int windowBits,
+    int inflateInit2_(tarantool_avro_z_stream *strm, int windowBits,
                       const char *version, int stream_size);
-    int inflate(pregel_z_stream *strm, int flush);
-    int inflateEnd(pregel_z_stream *strm);
+    int inflate(tarantool_avro_z_stream *strm, int flush);
+    int inflateEnd(tarantool_avro_z_stream *strm);
 ]]
 
-local STREAM_SIZE = ffi.sizeof('pregel_z_stream')
+local STREAM_SIZE = ffi.sizeof('tarantool_avro_z_stream')
 
 -- zlib compares the caller's sizeof against its own and refuses the stream
 -- when they differ, so a layout that drifted would show up as a bare
@@ -73,7 +73,7 @@ local STREAM_SIZE = ffi.sizeof('pregel_z_stream')
 -- it here instead, where the message can say what happened.
 local EXPECT_SIZE = ffi.abi('64bit') and 112 or 56
 if STREAM_SIZE ~= EXPECT_SIZE then
-    error(string.format('pregel.compress.zlib: z_stream is %d bytes on this ' ..
+    error(string.format('avro.compress.zlib: z_stream is %d bytes on this ' ..
                         'platform, expected %d -- the cdef does not match zlib.h',
                         STREAM_SIZE, EXPECT_SIZE), 0)
 end
@@ -104,7 +104,7 @@ local STRATEGY = {
 local CHUNK = 64 * 1024
 
 local function fail(fmt, ...)
-    error('pregel.compress: ' .. string.format(fmt, ...), 0)
+    error('avro.compress: ' .. string.format(fmt, ...), 0)
 end
 
 --- Report a zlib return code together with the stream's own message, which is
@@ -219,7 +219,7 @@ function zlib_mt:compress(data)
         fail('zlib compress expects a string, got %s', type(data))
     end
     local C = self._C
-    local strm = ffi.new('pregel_z_stream')
+    local strm = ffi.new('tarantool_avro_z_stream')
     local rc = C.deflateInit2_(strm, self.level, Z_DEFLATED, self.window_bits,
                                self.mem_level, self.strategy, C.zlibVersion(),
                                STREAM_SIZE)
@@ -257,7 +257,7 @@ function zlib_mt:decompress(data)
         fail('zlib decompress expects a string, got %s', type(data))
     end
     local C = self._C
-    local strm = ffi.new('pregel_z_stream')
+    local strm = ffi.new('tarantool_avro_z_stream')
     local rc = C.inflateInit2_(strm, self.window_bits, C.zlibVersion(),
                                STREAM_SIZE)
     if rc ~= Z_OK then
@@ -284,7 +284,7 @@ end
 --        'fixed' (default 'default'), `window_bits` 15 / -15 / 31 (default 15)
 -- @return an object with `compress` and `decompress`
 -- @raise when an option is out of range or of the wrong type, and when no libz
---        can be loaded -- see pregel.compress.lib for where it looks
+--        can be loaded -- see avro.compress.lib for where it looks
 -- @function new
 function M.new(opts)
     opts = opts or {}

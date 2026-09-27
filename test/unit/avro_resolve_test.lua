@@ -1,10 +1,10 @@
 local t   = require('luatest')
 local fio = require('fio')
 
-local schema  = require('pregel.avro.schema')
-local codec   = require('pregel.avro.codec')
-local ocf     = require('pregel.avro.ocf')
-local resolve = require('pregel.avro.resolve')
+local schema  = require('avro.schema')
+local codec   = require('avro.codec')
+local ocf     = require('avro.ocf')
+local resolve = require('avro.resolve')
 
 local g = t.group('avro_resolve')
 

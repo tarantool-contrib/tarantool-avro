@@ -1,7 +1,7 @@
 local t = require('luatest')
 local json = require('json')
 
-local schema = require('pregel.avro.schema')
+local schema = require('avro.schema')
 
 local g = t.group('avro_schema')
 

@@ -1,8 +1,8 @@
 local t = require('luatest')
 local ffi = require('ffi')
 
-local schema = require('pregel.avro.schema')
-local codec  = require('pregel.avro.codec')
+local schema = require('avro.schema')
+local codec  = require('avro.codec')
 
 local g = t.group('avro_codec')
 

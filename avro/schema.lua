@@ -13,7 +13,7 @@
 -- tojson, fingerprint) are memoised on the object, so passing the same schema
 -- around instead of re-parsing it is what keeps encoding cheap.
 --
--- @module pregel.avro.schema
+-- @module avro.schema
 
 local bit  = require('bit')
 local ffi  = require('ffi')
@@ -979,7 +979,7 @@ M.json_string_to_bytes = json_string_to_bytes
 local ct_i64 = ffi.typeof('int64_t')
 local ct_u64 = ffi.typeof('uint64_t')
 
---- A Lua number or 64-bit integer cdata -- the same test pregel.avro.codec
+--- A Lua number or 64-bit integer cdata -- the same test avro.codec
 --  makes, duplicated here because codec requires this module, not the reverse.
 --  It matters that this is not `type(v) == 'cdata'`: box.NULL is cdata too.
 local function is_number(v)

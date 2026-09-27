@@ -20,10 +20,10 @@
 -- A resolver is compiled once per (writer, reader) pair and cached, so the
 -- per-record cost is the decode itself.
 --
--- @module pregel.avro.resolve
+-- @module avro.resolve
 
-local avro_schema = require('pregel.avro.schema')
-local codec       = require('pregel.avro.codec')
+local avro_schema = require('avro.schema')
+local codec       = require('avro.codec')
 
 local M = {}
 

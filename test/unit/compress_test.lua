@@ -1,4 +1,4 @@
--- pregel.compress: the ffi compatibility layer for Enterprise's `compress`.
+-- avro.compress: the ffi compatibility layer for Enterprise's `compress`.
 --
 -- The Enterprise cross-checks live at the bottom and skip themselves on
 -- Community Edition, where there is no module to compare against. Everything
@@ -6,11 +6,11 @@
 local t      = require('luatest')
 local digest = require('digest')
 
-local lib      = require('pregel.compress.lib')
-local zlib     = require('pregel.compress.zlib')
-local zstd     = require('pregel.compress.zstd')
-local lz4      = require('pregel.compress.lz4')
-local compress = require('pregel.compress')
+local lib      = require('avro.compress.lib')
+local zlib     = require('avro.compress.zlib')
+local zstd     = require('avro.compress.zstd')
+local lz4      = require('avro.compress.lz4')
+local compress = require('avro.compress')
 
 local g = t.group('compress')
 
@@ -50,14 +50,14 @@ end
 
 g.test_lib_names_every_path_it_tried = function()
     -- The point of the message: a user whose libzstd is somewhere unusual can
-    -- see that PREGEL_COMPRESS_LIBDIR is the answer without reading the source.
+    -- see that AVRO_COMPRESS_LIBDIR is the answer without reading the source.
     local ok, err = pcall(lib.open, 'zstd',
                           {process = false, search = false,
-                           libdir = '/nonexistent-pregel-compress'})
+                           libdir = '/nonexistent-avro-compress'})
     t.assert_equals(ok, false)
     t.assert_str_contains(err, 'cannot load libzstd')
-    t.assert_str_contains(err, '/nonexistent-pregel-compress/libzstd.so.1')
-    t.assert_str_contains(err, '/nonexistent-pregel-compress/libzstd.1.dylib')
+    t.assert_str_contains(err, '/nonexistent-avro-compress/libzstd.so.1')
+    t.assert_str_contains(err, '/nonexistent-avro-compress/libzstd.1.dylib')
 end
 
 g.test_lib_prefers_the_process_over_a_file = function()
@@ -69,14 +69,14 @@ g.test_lib_prefers_the_process_over_a_file = function()
     -- build takes is exactly what this lookup exists to decide.
     local ok, C, origin = pcall(lib.open, 'zstd',
                                 {search = false, env = false,
-                                 libdir = '/nonexistent-pregel-compress'})
+                                 libdir = '/nonexistent-avro-compress'})
     if ok then
         t.assert_not_equals(C, nil)
         t.assert_str_contains(origin, 'ffi.C')
     else
         t.assert_str_contains(C,
             'ffi.C (the process exports no ZSTD_versionNumber)')
-        t.assert_str_contains(C, '/nonexistent-pregel-compress/libzstd.so.1')
+        t.assert_str_contains(C, '/nonexistent-avro-compress/libzstd.so.1')
     end
 end
 
@@ -92,15 +92,15 @@ g.test_lib_search_covers_the_homebrew_and_linux_directories = function()
 end
 
 g.test_lib_appends_the_env_directory = function()
-    local with = lib.candidates('lz4', {libdir = '/tmp/pregel-compress-env'})
+    local with = lib.candidates('lz4', {libdir = '/tmp/avro-compress-env'})
     local without = lib.candidates('lz4', {env = false})
     t.assert_gt(#with, #without)
-    t.assert_str_contains(with[#with - 3], '/tmp/pregel-compress-env')
+    t.assert_str_contains(with[#with - 3], '/tmp/avro-compress-env')
 end
 
 g.test_lib_available_does_not_raise = function()
     local ok, err = lib.available('zstd', {process = false, search = false,
-                                           libdir = '/nonexistent-pregel'})
+                                           libdir = '/nonexistent-avro'})
     t.assert_equals(ok, false)
     t.assert_str_contains(err, 'cannot load libzstd')
 end
@@ -273,7 +273,7 @@ g.test_zlib_survives_a_thousand_corrupt_blocks = function()
         -- a raise must be this module's, not a segfault turned into one.
         local ok, err = pcall(z.decompress, z, bad)
         if not ok then
-            t.assert_str_contains(err, 'pregel.compress')
+            t.assert_str_contains(err, 'avro.compress')
         end
     end
 end
@@ -354,7 +354,7 @@ g.test_zstd_does_not_allocate_on_a_size_it_read_out_of_the_input = function()
                    frame:sub(7)
     local ok, err = pcall(function() return zstd.new():decompress(forged) end)
     t.assert_equals(ok, false)
-    t.assert_str_contains(err, 'pregel.compress')
+    t.assert_str_contains(err, 'avro.compress')
 end
 
 g.test_zstd_corrupt_input_raises_and_says_what = function()
@@ -377,7 +377,7 @@ g.test_zstd_survives_a_thousand_corrupt_frames = function()
                     good:sub(pos + 1)
         local ok, err = pcall(z.decompress, z, bad)
         if not ok then
-            t.assert_str_contains(err, 'pregel.compress')
+            t.assert_str_contains(err, 'avro.compress')
         end
     end
 end
@@ -485,7 +485,7 @@ g.test_lz4_survives_a_thousand_corrupt_blocks = function()
             t.assert_le(#res, lz4.DEFAULT_BUFFER_SIZE)
         else
             raised = raised + 1
-            t.assert_str_contains(res, 'pregel.compress')
+            t.assert_str_contains(res, 'avro.compress')
         end
     end
     t.assert_equals(raised + decoded, 1000)
@@ -660,7 +660,7 @@ g.test_ee_zlib_cannot_read_raw_deflate_which_is_why_this_package_exists = functi
     -- The justification for the whole window_bits superset, asserted rather
     -- than believed: if a future Enterprise release starts honouring
     -- window_bits on decompress, this test goes red and the note in
-    -- pregel/compress/zlib.lua needs rewriting.
+    -- avro/compress/zlib.lua needs rewriting.
     skip_without_enterprise()
     local raw = ee().zlib.new({window_bits = -15}):compress(SAMPLE)
     t.assert_error(function()

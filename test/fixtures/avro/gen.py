@@ -353,7 +353,7 @@ def write(path, data):
 def deflate_corpus():
     """A plaintext that makes a compressor emit every RFC 1951 length code.
 
-    The pure-Lua inflater in pregel/avro/deflate.lua is what reads a deflate
+    The pure-Lua inflater in avro/deflate.lua is what reads a deflate
     block on a build without compress.zlib, and its LENGTH_BASE / LENGTH_EXTRA
     tables are only exercised by the length codes a stream actually uses. The
     Avro fixtures above are a few hundred bytes each and never reach the higher

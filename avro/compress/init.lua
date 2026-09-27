@@ -1,6 +1,6 @@
 --- Tarantool Enterprise's `compress` module, or an FFI stand-in for it.
 --
---     local compress = require('pregel.compress')
+--     local compress = require('avro.compress')
 --
 --     compress.implementation          --> 'enterprise' or 'ffi'
 --     compress.available('zstd')       --> true / false
@@ -10,8 +10,8 @@
 -- Under Enterprise the three codec tables are Enterprise's own, so the bytes
 -- are whatever that build has always produced and nothing has to be found on
 -- disk. Everywhere else they are this package's FFI bindings against the
--- system libz, libzstd and liblz4 -- see `pregel.compress.lib` for the lookup
--- and `PREGEL_COMPRESS_LIBDIR` for the escape hatch.
+-- system libz, libzstd and liblz4 -- see `avro.compress.lib` for the lookup
+-- and `AVRO_COMPRESS_LIBDIR` for the escape hatch.
 --
 -- ## Two things Enterprise's own module does not have
 --
@@ -26,11 +26,11 @@
 -- honours the option both ways. Reach for it only when that difference is the
 -- point; `compress.zlib` is the drop-in.
 --
--- @module pregel.compress
+-- @module avro.compress
 
-local ffi_zlib = require('pregel.compress.zlib')
-local ffi_zstd = require('pregel.compress.zstd')
-local ffi_lz4  = require('pregel.compress.lz4')
+local ffi_zlib = require('avro.compress.zlib')
+local ffi_zstd = require('avro.compress.zstd')
+local ffi_lz4  = require('avro.compress.lz4')
 
 --- The FFI implementation, reachable under every build.
 local FFI = {

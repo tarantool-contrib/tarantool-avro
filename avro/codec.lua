@@ -23,12 +23,12 @@
 -- Positions are 1-based, as everywhere else in Lua: decode(sc, data) starts at
 -- byte 1 and the position it returns is the one to pass to the next call.
 --
--- @module pregel.avro.codec
+-- @module avro.codec
 
 local bit = require('bit')
 local ffi = require('ffi')
 
-local avro_schema = require('pregel.avro.schema')
+local avro_schema = require('avro.schema')
 
 local M = {}
 
@@ -577,7 +577,7 @@ end
 --
 -- The enum `default` is not a fallback here: the specification gives it to
 -- *schema resolution*, for a reader that does not know a symbol the writer
--- wrote, and pregel.avro.resolve handles that case itself. Returning it for an
+-- wrote, and avro.resolve handles that case itself. Returning it for an
 -- index out of the writer's own range invented a value out of damaged bytes.
 decoders['enum'] = function(sc, data, pos)
     local idx, next_pos = get_int(data, pos)
@@ -816,7 +816,7 @@ function M.skip(sc, data, pos)
     return skip_value(avro_schema.parse(sc), data, check_pos(pos or 1))
 end
 
--- pregel.avro.resolve requires this module, so it is loaded on first use rather
+-- avro.resolve requires this module, so it is loaded on first use rather
 -- than at the top.
 local resolve_mod
 
@@ -847,7 +847,7 @@ function M.decode(sc, data, pos, reader_schema)
     pos = check_pos(pos or 1)
     if reader_schema ~= nil then
         if resolve_mod == nil then
-            resolve_mod = require('pregel.avro.resolve')
+            resolve_mod = require('avro.resolve')
         end
         return resolve_mod.decode(sc, data, pos, reader_schema)
     end

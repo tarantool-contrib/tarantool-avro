@@ -1,11 +1,11 @@
 local t   = require('luatest')
 local fio = require('fio')
 
-local avro    = require('pregel.avro')
-local schema  = require('pregel.avro.schema')
-local codec   = require('pregel.avro.codec')
-local deflate = require('pregel.avro.deflate')
-local ocf     = require('pregel.avro.ocf')
+local avro    = require('avro')
+local schema  = require('avro.schema')
+local codec   = require('avro.codec')
+local deflate = require('avro.deflate')
+local ocf     = require('avro.ocf')
 
 local g = t.group('avro_ocf')
 
@@ -89,7 +89,7 @@ end
 
 g.test_round_trip_zstandard_codec = function()
     -- Used to skip on Community Edition, where there was no compress.zstd. It
-    -- runs there now: pregel.compress binds the system libzstd through the
+    -- runs there now: avro.compress binds the system libzstd through the
     -- FFI, so the codec is available on any host that has the library.
     t.skip_if(not has_zstd(), 'no libzstd can be loaded in this build')
     round_trip('zstandard', 20)
@@ -134,7 +134,7 @@ g.test_deflate_both_readers_agree = function()
 end
 
 g.test_deflate_force_pure_selects_the_lua_inflater = function()
-    -- PREGEL_AVRO_PURE_LUA sets this at load; the flag is writable so that one
+    -- AVRO_PURE_LUA sets this at load; the flag is writable so that one
     -- process can drive both readers over the same file, which is what the
     -- container-file tests do.
     --
@@ -184,7 +184,7 @@ g.test_the_ffi_and_enterprise_writers_produce_the_same_file = function()
     --
     -- The sync marker is fixed, so the only thing that could differ is the
     -- compressed payload.
-    local compress = require('pregel.compress')
+    local compress = require('avro.compress')
     t.skip_if(compress.implementation ~= 'enterprise',
               'the two implementations are the same object in this build')
 
@@ -331,10 +331,10 @@ g.test_metadata_is_carried_through = function()
     local sc = schema.parse('"long"')
     local file = path('meta.avro')
     local w = ocf.open(file, {mode = 'w', schema = sc,
-                              metadata = {['x.owner'] = 'pregel'}})
+                              metadata = {['x.owner'] = 'tarantool-avro'}})
     w:close()
     local r = ocf.open(file, {mode = 'r'})
-    t.assert_equals(r.metadata['x.owner'], 'pregel')
+    t.assert_equals(r.metadata['x.owner'], 'tarantool-avro')
     r:close()
 end
 
@@ -432,10 +432,10 @@ g.test_missing_zstd_library_names_it = function()
     -- so the message it checks would have gone untested on every machine that
     -- runs the suite. Take the library away instead: `new` is what fails when
     -- none can be loaded, and it is the only thing the codec calls.
-    local compress = require('pregel.compress')
+    local compress = require('avro.compress')
     local saved = compress.zstd.new
     compress.zstd.new = function()
-        error('pregel.compress: cannot load libzstd (tried: nothing)', 0)
+        error('avro.compress: cannot load libzstd (tried: nothing)', 0)
     end
     local ok, err = pcall(function()
         ocf.write_all(path('zstd-missing.avro'), schema.parse('"long"'), {1},

@@ -16,8 +16,8 @@
 -- data, and the sync marker again.
 --
 -- Codecs: `null` always; `deflate` always, since the inflater is pure Lua and
--- the deflater falls back to stored blocks (see pregel.avro.deflate);
--- `zstandard` wherever `pregel.compress` can reach a libzstd, which is
+-- the deflater falls back to stored blocks (see avro.deflate);
+-- `zstandard` wherever `avro.compress` can reach a libzstd, which is
 -- Tarantool Enterprise and any host with the library installed.
 -- `codec_available` answers for the running build and names the implementation.
 --
@@ -25,15 +25,15 @@
 -- block. Everything here does blocking file I/O through fio and so must run in
 -- a fiber that may yield.
 --
--- @module pregel.avro.ocf
+-- @module avro.ocf
 
 local digest = require('digest')
 local fio    = require('fio')
 
-local avro_schema = require('pregel.avro.schema')
-local codec       = require('pregel.avro.codec')
-local compress    = require('pregel.compress')
-local deflate     = require('pregel.avro.deflate')
+local avro_schema = require('avro.schema')
+local codec       = require('avro.codec')
+local compress    = require('avro.compress')
+local deflate     = require('avro.deflate')
 
 local M = {}
 
@@ -355,7 +355,7 @@ local function open_reader(opts)
     self.schema = self.writer_schema
     if opts.schema ~= nil then
         self.schema = avro_schema.parse(opts.schema)
-        self._resolver = require('pregel.avro.resolve')
+        self._resolver = require('avro.resolve')
             .resolver(self.writer_schema, self.schema)
     end
     -- A file with no codec entry uses the null codec.
@@ -614,7 +614,7 @@ end
 --- The schema of a file, without reading any records.
 --
 -- Only the header is read, so this is cheap on a large file -- which is what
--- lets pregel.loader check its field-name options before a load starts.
+-- lets a loader check the field names it was given before a load starts.
 --
 -- @param path the file to inspect
 -- @param opts as for open() in mode 'r'

@@ -8,7 +8,7 @@
 -- same library `libz.so.1`. So the lookup is a list, and the error names every
 -- entry of it rather than saying "not found".
 --
---     local lib = require('pregel.compress.lib')
+--     local lib = require('avro.compress.lib')
 --     local C, origin = lib.open('zstd')
 --     print(lib.version('zstd'))     --> '1.5.7'
 --
@@ -24,10 +24,10 @@
 --    cache.
 -- 3. Fixed directories: the two Homebrew prefixes, `/usr/local`, and the usual
 --    Linux multiarch ones.
--- 4. The directory named by `PREGEL_COMPRESS_LIBDIR`, last, as a fallback for
+-- 4. The directory named by `AVRO_COMPRESS_LIBDIR`, last, as a fallback for
 --    a library installed somewhere none of the above reaches.
 --
--- @module pregel.compress.lib
+-- @module avro.compress.lib
 
 local ffi = require('ffi')
 
@@ -44,7 +44,7 @@ ffi.cdef[[
 ]]
 
 local function fail(fmt, ...)
-    error('pregel.compress: ' .. string.format(fmt, ...), 0)
+    error('avro.compress: ' .. string.format(fmt, ...), 0)
 end
 
 -- Directories searched for every library, in order. `<opt>` stands for the
@@ -105,7 +105,7 @@ local function candidates(spec, opts)
     end
     local libdir = opts.libdir
     if libdir == nil and opts.env ~= false then
-        libdir = os.getenv('PREGEL_COMPRESS_LIBDIR')
+        libdir = os.getenv('AVRO_COMPRESS_LIBDIR')
     end
     if libdir ~= nil and libdir ~= '' then
         for _, file in ipairs(spec.files) do
@@ -131,12 +131,12 @@ local cache = {}
 --
 -- @param name 'zlib', 'zstd' or 'lz4'
 -- @param opts optional; `search = false` drops the built-in sonames and
---        directories, `env = false` ignores `PREGEL_COMPRESS_LIBDIR`, and
+--        directories, `env = false` ignores `AVRO_COMPRESS_LIBDIR`, and
 --        `libdir = '<dir>'` names one directly. Passing any of them bypasses
 --        the cache, so a test can ask what a differently-configured host would
 --        find without poisoning the process.
 -- @return the ffi namespace, and a string naming where it came from
--- @raise 'pregel.compress: cannot load libzstd (tried: ...)', listing every
+-- @raise 'avro.compress: cannot load libzstd (tried: ...)', listing every
 --        candidate
 -- @function open
 function M.open(name, opts)

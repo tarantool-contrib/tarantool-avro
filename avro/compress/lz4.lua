@@ -1,6 +1,6 @@
 --- LZ4 over the FFI, with the same surface as Enterprise's `compress.lz4`.
 --
---     local lz4 = require('pregel.compress.lz4')
+--     local lz4 = require('avro.compress.lz4')
 --     local z = lz4.new({acceleration = 1, decompress_buffer_size = 1048576})
 --     z:decompress(z:compress(s)) == s
 --
@@ -27,11 +27,11 @@
 -- matters -- the Avro container format, for one -- the framing above the codec
 -- is what catches it.
 --
--- @module pregel.compress.lz4
+-- @module avro.compress.lz4
 
 local ffi = require('ffi')
 
-local lib = require('pregel.compress.lib')
+local lib = require('avro.compress.lib')
 
 local M = {}
 
@@ -50,7 +50,7 @@ local MAX_INPUT = 0x7E000000
 local DEFAULT_BUFFER_SIZE = 1024 * 1024
 
 local function fail(fmt, ...)
-    error('pregel.compress: ' .. string.format(fmt, ...), 0)
+    error('avro.compress: ' .. string.format(fmt, ...), 0)
 end
 
 local lz4_mt = {}
@@ -135,7 +135,7 @@ end
 --        largest block `decompress` will produce)
 -- @return an object with `compress` and `decompress`
 -- @raise when an option is out of range or of the wrong type, and when no
---        liblz4 can be loaded -- see pregel.compress.lib for where it looks
+--        liblz4 can be loaded -- see avro.compress.lib for where it looks
 -- @function new
 function M.new(opts)
     opts = opts or {}

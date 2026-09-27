@@ -1,6 +1,6 @@
 --- Apache Avro for Tarantool, in pure Lua.
 --
---     local avro = require('pregel.avro')
+--     local avro = require('avro')
 --
 --     local sc = avro.schema.parse('{"type":"record","name":"P","fields":[...]}')
 --     local bytes = avro.encode(sc, {...})
@@ -10,23 +10,23 @@
 --     w:append({...}); w:close()
 --     for record in avro.ocf.open('graph.avro'):records() do ... end
 --
--- The pieces are usable on their own: `pregel.avro.schema` parses and
--- fingerprints schemas, `pregel.avro.codec` does the binary encoding,
--- `pregel.avro.resolve` reads data written with one schema through another,
--- `pregel.avro.ocf` the container format and `pregel.avro.deflate` the raw
+-- The pieces are usable on their own: `avro.schema` parses and
+-- fingerprints schemas, `avro.codec` does the binary encoding,
+-- `avro.resolve` reads data written with one schema through another,
+-- `avro.ocf` the container format and `avro.deflate` the raw
 -- DEFLATE its `deflate` codec needs. The compression itself comes from
--- `pregel.compress`, which is Enterprise's module or an FFI stand-in for it.
+-- `avro.compress`, which is Enterprise's module or an FFI stand-in for it.
 --
 -- This module only re-exports; every function it names is documented where it
 -- is defined.
 --
--- @module pregel.avro
+-- @module avro
 
-local schema  = require('pregel.avro.schema')
-local codec   = require('pregel.avro.codec')
-local ocf     = require('pregel.avro.ocf')
-local deflate = require('pregel.avro.deflate')
-local resolve = require('pregel.avro.resolve')
+local schema  = require('avro.schema')
+local codec   = require('avro.codec')
+local ocf     = require('avro.ocf')
+local deflate = require('avro.deflate')
+local resolve = require('avro.resolve')
 
 local M = {
     schema   = schema,
