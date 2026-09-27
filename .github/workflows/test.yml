@@ -29,7 +29,9 @@ jobs:
           sudo apt-get install -y tt
 
       - name: Install luacheck
-        run: tt rocks install luacheck 0.26.1
+        # 0.26.0 is the newest luacheck on rocks.tarantool.org; the 0.26.1
+        # the organization's starter workflow pins does not exist there.
+        run: tt rocks install luacheck 0.26.0
 
       - name: Run luacheck
         run: .rocks/bin/luacheck .
