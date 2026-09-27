@@ -22,7 +22,7 @@ tests comes from the other implementation, not from this one.
 
 ## Requirements and installation
 
-Tarantool 3.9, Community or Enterprise Edition. Other versions are not tested.
+Tarantool 3.8, Community or Enterprise Edition. Other versions are not tested.
 
 ```
 tt rocks install --server=... tarantool-avro   # once the rock is published
