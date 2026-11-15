@@ -1,3 +1,6 @@
 .*.swp
 .rocks/
 test/var/
+
+# tt package build and pack.
+/_build/

@@ -24,10 +24,19 @@ tests comes from the other implementation, not from this one.
 
 Tarantool 3.8, Community or Enterprise Edition. Other versions are not tested.
 
+The rock is published for tt 3 at the
+[rocks-repo](https://github.com/tarantool-contrib/rocks-repo) of
+tarantool-contrib from the tags `vX.Y.Z`, one rock for every platform;
+`app.manifest.toml` declares it. A project depends on it in its
+`app.manifest.toml`:
+
+```toml
+[dependencies]
+tarantool-avro = { version = "0.1.0", registry = "https://raw.githubusercontent.com/tarantool-contrib/rocks-repo/index/" }
 ```
-tt rocks install --server=... tarantool-avro   # once the rock is published
-tt rocks make                                  # from a checkout
-```
+
+From a checkout, `tt rocks make` installs it into `.rocks/`, and
+`tt package pack --format rock` packs the rock.
 
 The module is `require('avro')`. The unrelated C bindings to the Avro C library
 published on luarocks.org (`lua-avro`, `kong-lua-avro`, `avro`) use the same
