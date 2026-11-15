@@ -1,0 +1,25 @@
+# The package for tt v3: tt package build and tt package pack read it, and
+# the rockspec of the rock is generated from it. tarantool-avro-scm-1.rockspec
+# stays for tt rocks (LuaRocks) from a checkout.
+manifest_version = "0.1"
+
+[package]
+name = "tarantool-avro"
+description = "Apache Avro for Tarantool, in pure Lua"
+license = "BSD-2-Clause"
+license_files = ["LICENSE"]
+repository = "https://github.com/tarantool-contrib/tarantool-avro"
+
+[platform]
+# The one series the suite runs on (README.md, Requirements).
+tarantool = ">=3.8.0"
+tt = ">=3.0.0"
+
+# No runtime dependencies: zlib, zstd and lz4 are loaded by FFI where they
+# are (avro.compress).
+[dependencies]
+
+# The modules avro and avro.*: every Lua file under avro/.
+[components.avro]
+path = "avro"
+namespace = "avro"

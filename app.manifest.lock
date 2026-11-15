@@ -1,0 +1,9 @@
+lock_version = '0.1'
+manifest_version = '0.1'
+generated_by = 'tt 3.0.0-alpha.2'
+manifest_hash = 'toml1-sha256:226ad85b31611709cbc7c7d7048d1eb08b7bd110e177ed0944a29b2403d3721d'
+
+[lock]
+[lock.products]
+[lock.products.default]
+dependencies = []
